@@ -49,3 +49,6 @@ https://github.com/pmiaowu/BurpFastJsonScan
 
 https://github.com/bit4woo/burp-api-drops
 
+[![Stargazers over time](https://starchart.cc/EASY233/BpScan.svg)](https://starchart.cc/EASY233/BpScan)
+
+
