@@ -25,7 +25,7 @@ public class FastJsonScan {
         Features.clear();
         URL url = helpers.analyzeRequest(baseRequestResponse).getUrl();
         String baseurl = url.getProtocol() + "://" + url.getAuthority();
-        if(scandone.contains(Common.MD5(baseurl))){
+        if(!scandone.contains(Common.MD5(baseurl))){
             List<String> headers = helpers.analyzeRequest(baseRequestResponse).getHeaders();
             int bodyOffset = helpers.analyzeRequest(baseRequestResponse.getRequest()).getBodyOffset();
             String resp =new  String(baseRequestResponse.getRequest());
