@@ -20,6 +20,7 @@ import java.util.List;
 
 public class Log4jScan {
     static PrintWriter stdout;
+    static boolean urlencode = false;
     static List<String> Features = new ArrayList<>();
     static String ceyeDomain = YamlReader.getInstance(BurpExtender.getCallbacks()).getString("dnsLog.domain");
     static List<String> Log4jScanHeaders = YamlReader.getInstance(BurpExtender.getCallbacks()).getStringList("scanModule.Log4jScan.ScanHeader");
@@ -34,13 +35,17 @@ public class Log4jScan {
             stdout.println("Log4j Rce Scan Start!");
             List<Object> Success = new ArrayList<>();
             List<String> headers = helpers.analyzeRequest(baseRequestResponse).getHeaders();
+            if(headers.contains("application/x-www-form-urlencoded")){
+                stdout.println("检测到application/x-www-form-urlencoded");
+                urlencode = true;
+            }
             int size = headers.size();
             String methond = helpers.analyzeRequest(baseRequestResponse).getMethod();;
             //对head头添加poc
             for(int i=0;i<size;i++){
                 String header = headers.get(i).split(":")[0];
                 if(Log4jScanHeaders.contains(header)){
-                    String poc = header + ": " + Getpoc(false);
+                    String poc = header + ": " + Getpoc();
                     headers.set(i,poc);
                 }
             }
@@ -94,7 +99,7 @@ public class Log4jScan {
             String[] requries = requris[1].split("&");
             for (String uri_single : requries){
                 String[] uri_single_lists = uri_single.split("=");
-                uri_total = uri_total + uri_single_lists[0] + "=" + Getpoc(true) + "&";
+                uri_total = uri_total + uri_single_lists[0] + "=" + Getpoc() + "&";
             }
             uri_total = requris[0] + "?" + uri_total.substring(0,uri_total.length()-1);
             stdout.println(heads.get(0) + " " + uri_total + " " + heads.get(2));
@@ -110,14 +115,14 @@ public class Log4jScan {
             String[] bodys_single = body.split("&");
             for(String body_single:bodys_single) {
                 String[] body_single_lists = body_single.split("=");
-                body_total = body_total + body_single_lists[0] + "="  + Getpoc(true) +  "&" ;
+                body_total = body_total + body_single_lists[0] + "="  + Getpoc() +  "&" ;
             }
             body_total = body_total.substring(0,body_total.length()-1);
             return body_total;
-        }else if(!body.contains("=") && body.endsWith("}") && body.startsWith("{")){
+        }else if(!body.contains("=") && body.endsWith("}") && body.trim().replace("\\r","").endsWith("}")){
             JSONObject jsonObject = JSON.parseObject(body);
             for (String key:jsonObject.keySet()) {
-                jsonObject.put(key, Getpoc(true));
+                jsonObject.put(key, Getpoc());
             }
             return jsonObject.toString();
         }else if( body.contains("=") && body.contains("={") && body.contains("&")){
@@ -128,12 +133,12 @@ public class Log4jScan {
                     String[] body_single_lists = body_single.split("=");
                     JSONObject jsonObject = JSON.parseObject(body_single_lists[1]);
                     for (String key:jsonObject.keySet()) {
-                        jsonObject.put(key, Getpoc(true));
+                        jsonObject.put(key, Getpoc());
                     }
                     body_total = body_total + body_single_lists[0] + "=" + jsonObject.toString() + "&";
                 }else {
                     String[] body_single_lists = body_single.split("=");
-                    body_total = body_total + body_single_lists[0] + "=" + Getpoc(true) + "&";
+                    body_total = body_total + body_single_lists[0] + "=" + Getpoc() + "&";
                 }
             }
             body_total = body_total.substring(0,body_total.length()-1);
@@ -144,10 +149,10 @@ public class Log4jScan {
                 if (jsonObject.getString(key).startsWith("{") && jsonObject.getString(key).endsWith("}")){
                     JSONObject jsonObject2 = JSON.parseObject(jsonObject.getString(key));
                     for (String key2:jsonObject2.keySet())
-                        jsonObject2.put(key2,Getpoc(true));
+                        jsonObject2.put(key2,Getpoc());
                     jsonObject.put(key,jsonObject2);
                 } else
-                    jsonObject.put(key, Getpoc(true));
+                    jsonObject.put(key, Getpoc());
             }
             return jsonObject.toString();
         }else{
@@ -156,7 +161,7 @@ public class Log4jScan {
     }
 
 
-    public static String Getpoc(Boolean urlencode) throws UnsupportedEncodingException {
+    public static String Getpoc() throws UnsupportedEncodingException {
          String RandomString = Common.getRandomString(25);
          Features.add(RandomString);
          if(urlencode){

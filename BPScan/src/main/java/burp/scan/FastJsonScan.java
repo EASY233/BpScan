@@ -25,7 +25,8 @@ public class FastJsonScan {
         Features.clear();
         URL url = helpers.analyzeRequest(baseRequestResponse).getUrl();
         String baseurl = url.getProtocol() + "://" + url.getAuthority();
-        if(!scandone.contains(Common.MD5(baseurl))){
+        String methond = helpers.analyzeRequest(baseRequestResponse).getMethod();;
+        if(!scandone.contains(Common.MD5(baseurl)) && methond.toLowerCase().equals("post") ){
             List<String> headers = helpers.analyzeRequest(baseRequestResponse).getHeaders();
             int bodyOffset = helpers.analyzeRequest(baseRequestResponse.getRequest()).getBodyOffset();
             String resp =new  String(baseRequestResponse.getRequest());
@@ -52,7 +53,7 @@ public class FastJsonScan {
                 }
             }
         }else{
-            stdout.println(baseurl + " Fastjson rce已扫描，跳过～");
+            stdout.println(baseurl + " Fastjson rce已扫描 or 非Post请求，跳过～");
         }
         return null;
     }

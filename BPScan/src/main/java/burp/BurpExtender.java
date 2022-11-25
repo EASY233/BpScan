@@ -5,7 +5,7 @@ import burp.common.ScanJudge;
 import burp.common.YamlReader;
 import burp.scan.FastJsonScan;
 import burp.scan.Log4jScan;
-import burp.scan.SpringBootActuatorScan;
+import burp.scan.SpringSpiderScan;
 
 import java.awt.*;
 import java.io.IOException;
@@ -67,7 +67,7 @@ public class BurpExtender implements IBurpExtender,IScannerCheck,ITab{
             return null;
         }
         if(YamlReader.getInstance(callbacks).getBoolean("scanModule.SpringSpiderScan.isStart")){
-            List<IHttpRequestResponse>  SpringSpiderScanResults= SpringBootActuatorScan.ScanMain(baseRequestResponse,callbacks,helpers, stdout);
+            List<IHttpRequestResponse>  SpringSpiderScanResults= SpringSpiderScan.ScanMain(baseRequestResponse,callbacks,helpers, stdout);
             for(IHttpRequestResponse result:SpringSpiderScanResults){
                 if(result != null){
                     String payload = helpers.analyzeRequest(result).getUrl().getPath();
